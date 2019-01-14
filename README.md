@@ -1,148 +1,139 @@
-# Custom machine learning engine
-## Serving Keras and Spark models
+# Monitor Custom Machine Learning engine with AI OpenScale
 
-The repository contains the code for creating custom deployment of Keras ResNet50 model (images classification) and Spark MLlib (CARS4U) on IBM Cloud.
-Custom deployment provides REST API endpoints to score the model (predict image class) and to list deployment endpoints.
+In this Code Pattern, we will log the payload for a model deployed on custom model serving engine using AI OpenScale python sdk. We'll use [Keras to build a deep learning REST API](https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html) and then monitor with [AI Open Scale](https://console.bluemix.net/docs/services/ai-openscale/getting-started.html).
 
-**Note**: To be able to integrate custom deployment with [AI OpenScale](https://console.bluemix.net/catalog/services/ai-openscale) features it must follow [REST API specification](https://aiopenscale-custom-deployement-spec.mybluemix.net/).
+When the reader has completed this Code Pattern, they will understand how to:
 
+* Build a custom model serving engine using [Keras](https://keras.io/)
+* Access the custom model using a REST API
+* Log the payload for the model using [AI OpenScale](https://console.bluemix.net/docs/services/ai-openscale/connect-ml.html#connect-ml)
 
-## Requirements
+![](doc/source/images/architecture.png)
 
-- python 3.5 or 3.6
-- pip
-- python libs: cfenv, Flask, watson-developer-cloud, gevent, requests, tensorflow, keras, ibmcloudenv, livereload, pillow, numpy
+## Flow
 
-User also should have account on Bluemix (IBM Cloud) with active us-south region. 
+1. Step 1.
+2. Step 2.
+3. Step 3.
+4. Step 4.
+5. Step 5.
 
+# Watch the Video
 
-## Deployment
+TBD
 
-### Initial configuration
+## Prerequisites
 
-Clone repository and enter cloned project directory:
+* An [IBM Cloud Account](https://console.bluemix.net).
+* [IBM Cloud CLI](https://console.bluemix.net/docs/cli/index.html#overview)
+* An account on [IBM Watson Studio](https://dataplatform.ibm.com) or a way to run a [Jupyter Notebook](https://jupyter.org/) locally
 
-   ```bash
-   $ git clone https://github.com/pmservice/ai-openscale-tutorials
-   $ cd applications/custom-ml-engine
-   ```
+# Steps
 
-### Deployment and run on local environment
+## Run locally
 
-Run:
+1. [Clone the repo](#1-clone-the-repo)
+2. [Create Watson services with IBM Cloud](#2-create-watson-services-with-ibm-cloud)
+3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) OR
+   Run the notebook locally
+4. 
+4. Perform either 4a or 4b
+
+    4a. [Run the application server in a Docker container](#4a-run-the-application-server-in-a-docker-container)
+
+    4b [Run the application server locally](#4b-run-the-application-server-locally)
+
+### 1. Clone the repo
+
+Clone the `monitor-custom-ml-engine-with-ai-openscale` locally. In a terminal, run:
 
 ```bash
-$ pip install -r requirements.txt
-$ python run_server.py
+$ git clone https://github.com/IBM/monitor-custom-ml-engine-with-ai-openscale
 ```
 
-Application server will be available at `127.0.0.1:5000`.
+### 2. Create Watson services with IBM Cloud
 
+> Note: If you are using [Watson Studio]() for your notebook, services created must be in the same region, and space, as your Watson Studio service.
 
-### Deployment and run on IBM Cloud (Bluemix)
+Create the following services:
 
-1. Create Kubernetes Cluster on IBM Cloud
+* [AI OpenScale](https://console.bluemix.net/catalog/services/ai-openscale)
+  You will get the AI OpenScale instance GUID when you run the notebook using the [IBM Cloud CLI](https://console.bluemix.net/catalog/services/ai-openscale)
 
-    - select `US South` as cluster location
-    - use Free or Standard cluster type
-    
-2. When the provisioning is completed use worker node Public IP to update `PUBLIC_IP` value in [run_erver.py](run_server.py) file.
-![](images/public_ip.png)
+* [Compose for PostgreSQL DB](https://console.bluemix.net/catalog/services/compose-for-postgresql)
 
-3. Install IBM Cloud prerequisites
+![](doc/source/images/ChooseComposePostgres.png)
 
-    https://console.bluemix.net/docs/containers/cs_tutorials.html#prerequisites
-    
-4. Create registry namespace
+* Wait a couple of minutes for the database to be provisioned.
+* Click on the `Service Credentials` tab on the left and then click `New credential +` to create the service credentials. Copy them or leave the tab open to use later in the notebook.
 
-    ```ibmcloud cr namespace-add <namespace>```
-    
-5. Config kubernetes cluster
+### 3. Create a notebook in IBM Watson Studio                                                          
 
-    ```bash
-    ibmcloud ks cluster-config <cluster_name_or_ID>
-    ```
-    Copy the returned command and run:
-    
-    ```bash
-    export KUBECONFIG=/Users/<user_name>/.bluemix/plugins/container-service/clusters/pr_firm_cluster/kube-config-prod-par02-pr_firm_cluster.yml
-    ```
+* In [Watson Studio](https://dataplatform.ibm.com), create a `New project`.
+* Using the project you've created, click on `+ Add to project` and then choose the  `Notebook` tile, OR in the `Assets` tab under `Notebooks` choose `+ New notebook` to create a notebook.
+* Select the `From URL` tab.
+* Enter a name for the notebook.
+* Optionally, enter a description for the notebook.
+* Under `Notebook URL` provide the following url: https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-ai-openscale/notebooks/AIOpenScaleAndCustomMLEngine.ipynb
+* Select the `Default Python 3.5` runtime, either `Free` or `XS`.
+* Click the `Create` button.
 
-6. Build and publish docker image (`<region>` can be for example: `ng`)
+### 5. Run the notebook in IBM Watson Studio
 
-    ```bash
-    ibmcloud cr build -t registry.<region>.bluemix.net/<namespace>/custom-ml-engine:1 .
-    ```
+* Follow the instructions for `ACTION: Get data_mart_id (GUID) and apikey` using the [IBM Cloud CLI](https://console.bluemix.net/docs/cli/index.html#overview)
 
-7. Deploy application and expose port
-
-    ```bash
-    kubectl run custom-ml-engine-deployment --image=registry.<region>.bluemix.net/<namespace>/custom-ml-engine:1
-    kubectl create -f service.yaml
-    ```
-
-8. Get exposed NodePort and worker node public IP
-
-    ```bash
-    kubectl describe service custom-ml-engine-service
-    ibmcloud ks workers <cluster_name_or_ID>
-    ```
-    
-Application will be available with the following URL: `http://<IP_address>:<NodePort>`
-
-## Submitting REST API requests
-
-### List deployments
-Request:
-```python
-KERAS_REST_API_URL = 'http://169.xx.xxx.xxx:30080/v1/deployments'
-header = {'Authorization':'Bearer xxx'}
-r = requests.get(KERAS_REST_API_URL, headers=header)
-
-print(str(r.text))
+Get an IAM apikey:
 ```
-Response:
-```json
-{"count":2,"resources":[{"entity":{"deployable_asset":{"created_at":"2016-12-01T10:11:12Z","guid":"569ac899-c0d1-4892-b09f-7415e7eb7948","name":"my ResNet50 model","type":"model","url":"http://github.com/models/my_model.h5"},"description":"description","model_type":"tf-1.5","name":"ResNet50 aios compliant deployment","runtime_environment":"py-3.5","scoring_url":"https://keras-resnet50.mybluemix.net/v1/deployments/aios_compliant/online","status":"ACTIVE","status_message":"string","type":"online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"string","modified_at":"2016-12-02T12:00:22Z","url":"string"}},{"entity":{"deployable_asset":{"created_at":"2016-12-01T10:11:12Z","guid":"569ac899-c0d1-4892-b09f-7415e7eb79xx","name":"my ResNet50 model","type":"model","url":"http://github.com/models/my_model.h5"},"description":"description","model_type":"tf-1.5","name":"ResNet50 custom deployment","runtime_environment":"py-3.5","scoring_url":"https://keras-resnet50.mybluemix.net/v1/deployments/custom/online","status":"ACTIVE","status_message":"string","type":"online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"string","modified_at":"2016-12-02T12:00:22Z","url":"string"}}]}
+$ibmcloud login --sso
+$ibmcloud iam api-key-create 'my_key'
 ```
 
-### Score
-
-Request:
-```python
-def prepare_payload(image_path):
-    image = Image.open(image_path)
-
-    if image.mode is not "RGB":
-        image = image.convert("RGB")
-
-    image = image.resize((224, 224))
-    image = img_to_array(image)
-    image = np.expand_dims(image, axis=0)
-    image = imagenet_utils.preprocess_input(image)
-    image_list = image.tolist()
-
-    return {'values': image_list}
+Get data_mart_id (this is AI OpenScale instance GUID):
 ```
-```python
-KERAS_REST_API_URL = "http://169.xx.xxx.xxx:30080/v1/deployments/compliant/online"
-
-payload = prepare_payload('labrador.jpg')
-header = {'Content-Type':'application/json', 'Authorization':'Bearer xxx'}
-
-r = requests.post(KERAS_REST_API_URL, json=payload, headers=header)
-
-print(str(r.text))
-```
-Response:
-```json
-{"fields":["probabilities","prediction","prediction_probability"],"labels":["Labrador_retriever","Chesapeake_Bay_retriever","Rottweiler","curly-coated_retriever","Rhodesian_ridgeback"],"values":[[["0.70551187","0.22909379","0.030718252","0.0062348368","0.0053016352"],"Labrador_retriever","0.70551187"]]}
+$ibmcloud resource service-instance <AIOpenScale_instance_name>
 ```
 
+* Enter the `data_mart_id` and `apikey` in the next cell for the `aios_credentials`.
+* In the cell after `ACTION: Add your Watson Machine Learning credentials here`, add the [Watson Machine Learning](https://console.bluemix.net/catalog/services/machine-learning) credentials for the service that you created for [Prediction Using Watson Machine Learning](https://github.com/IBM/prediction-using-watson-machine-learning).
+* In the cell after `ACTION: Add your PostgreSQL credentials here` enter the value for the key `uri`.
+> NOTE: This is the key `uri` and is NOT `uri_cli_1`, `uri_cli`, or `uri_direct_1`.
+* Move your cursor to each code cell and run the code in it. Read the comments for each cell to understand what the code is doing. **Important** when the code in a cell is still running, the label to the left changes to **In [\*]**:.
+  Do **not** continue to the next cell until the code is finished running.
 
-## References:
-1. [The Keras Blog, "Building a simple Keras + deep learning REST API"](https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html)
-2. [AI OpenScale service](https://console.bluemix.net/catalog/services/ai-openscale)
-3. [REST API specification](https://aiopenscale-custom-deployement-spec.mybluemix.net/)
-4. [Sample notebook:  Custom deployment scoring examples](TBD)
-5. [Sample notebook: Data Mart configuration for custom deployment](TBD)
+### 6. Run the application
+
+1. Install [Node.js](https://nodejs.org/en/) runtime or NPM.
+1. Start the app by running `npm install`, followed by `npm start`.
+1. Use the chatbot at `localhost:3000`.
+> Note: server host can be changed as required in server.js and `PORT` can be set in `.env`.
+
+<!--Add a section that explains to the reader what typical output looks like, include screenshots -->
+
+# Sample output
+
+![](doc/source/images/sample_output.png)
+
+<!--Optionally, include any troubleshooting tips (driver issues, etc)-->
+
+# Troubleshooting
+
+* Error: Environment {GUID} is still not active, retry once status is active
+
+  > This is common during the first run. The app tries to start before the Discovery
+environment is fully created. Allow a minute or two to pass. The environment should
+be usable on restart. If you used `Deploy to IBM Cloud` the restart should be automatic.
+
+* Error: Only one free environent is allowed per organization
+
+  > To work with a free trial, a small free Discovery environment is created. If you already have
+a Discovery environment, this will fail. If you are not using Discovery, check for an old
+service thay you may want to delete. Otherwise use the .env DISCOVERY_ENVIRONMENT_ID to tell
+the app which environment you want it to use. A collection will be created in this environment
+using the default configuration.
+
+<!-- keep this -->
+## License
+
+This code pattern is licensed under the Apache License, Version 2. Separate third-party code objects invoked within this code pattern are licensed by their respective providers pursuant to their own separate licenses. Contributions are subject to the [Developer Certificate of Origin, Version 1.1](https://developercertificate.org/) and the [Apache License, Version 2](https://www.apache.org/licenses/LICENSE-2.0.txt).
+
+[Apache License FAQ](https://www.apache.org/foundation/license-faq.html#WhatDoesItMEAN)
