@@ -36,12 +36,13 @@ TBD
 2. [Create Watson services with IBM Cloud](#2-create-watson-services-with-ibm-cloud)
 3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) OR
    Run the notebook locally
-4. 
 4. Perform either 4a or 4b
 
     4a. [Run the application server in a Docker container](#4a-run-the-application-server-in-a-docker-container)
 
-    4b [Run the application server locally](#4b-run-the-application-server-locally)
+    4b. [Run the application server locally](#4b-run-the-application-server-locally)
+
+5. [Run the notebook in IBM Watson Studio](#5-run-the-notebook-in-ibm-watson-studio)
 
 ### 1. Clone the repo
 
@@ -67,7 +68,7 @@ Create the following services:
 * Wait a couple of minutes for the database to be provisioned.
 * Click on the `Service Credentials` tab on the left and then click `New credential +` to create the service credentials. Copy them or leave the tab open to use later in the notebook.
 
-### 3. Create a notebook in IBM Watson Studio                                                          
+### 3. Create a notebook in IBM Watson Studio
 
 * In [Watson Studio](https://dataplatform.ibm.com), create a `New project`.
 * Using the project you've created, click on `+ Add to project` and then choose the  `Notebook` tile, OR in the `Assets` tab under `Notebooks` choose `+ New notebook` to create a notebook.
@@ -77,6 +78,8 @@ Create the following services:
 * Under `Notebook URL` provide the following url: https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-ai-openscale/notebooks/AIOpenScaleAndCustomMLEngine.ipynb
 * Select the `Default Python 3.5` runtime, either `Free` or `XS`.
 * Click the `Create` button.
+
+### 4. TBD
 
 ### 5. Run the notebook in IBM Watson Studio
 
@@ -88,50 +91,21 @@ $ibmcloud login --sso
 $ibmcloud iam api-key-create 'my_key'
 ```
 
-Get data_mart_id (this is AI OpenScale instance GUID):
+Get AI OpenScale instance GUID:
 ```
 $ibmcloud resource service-instance <AIOpenScale_instance_name>
 ```
 
-* Enter the `data_mart_id` and `apikey` in the next cell for the `aios_credentials`.
-* In the cell after `ACTION: Add your Watson Machine Learning credentials here`, add the [Watson Machine Learning](https://console.bluemix.net/catalog/services/machine-learning) credentials for the service that you created for [Prediction Using Watson Machine Learning](https://github.com/IBM/prediction-using-watson-machine-learning).
-* In the cell after `ACTION: Add your PostgreSQL credentials here` enter the value for the key `uri`.
-> NOTE: This is the key `uri` and is NOT `uri_cli_1`, `uri_cli`, or `uri_direct_1`.
+* Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `AIOS_CREDENTIALS`.
+* In the cell after `ACTION: Add your PostgreSQL credentials here` enter the credentials from the [Compose for PostgreSQL DB](https://console.bluemix.net/catalog/services/compose-for-postgresql) that you created earlier.
+
 * Move your cursor to each code cell and run the code in it. Read the comments for each cell to understand what the code is doing. **Important** when the code in a cell is still running, the label to the left changes to **In [\*]**:.
   Do **not** continue to the next cell until the code is finished running.
 
-### 6. Run the application
-
-1. Install [Node.js](https://nodejs.org/en/) runtime or NPM.
-1. Start the app by running `npm install`, followed by `npm start`.
-1. Use the chatbot at `localhost:3000`.
-> Note: server host can be changed as required in server.js and `PORT` can be set in `.env`.
-
-<!--Add a section that explains to the reader what typical output looks like, include screenshots -->
-
 # Sample output
-
-![](doc/source/images/sample_output.png)
-
-<!--Optionally, include any troubleshooting tips (driver issues, etc)-->
 
 # Troubleshooting
 
-* Error: Environment {GUID} is still not active, retry once status is active
-
-  > This is common during the first run. The app tries to start before the Discovery
-environment is fully created. Allow a minute or two to pass. The environment should
-be usable on restart. If you used `Deploy to IBM Cloud` the restart should be automatic.
-
-* Error: Only one free environent is allowed per organization
-
-  > To work with a free trial, a small free Discovery environment is created. If you already have
-a Discovery environment, this will fail. If you are not using Discovery, check for an old
-service thay you may want to delete. Otherwise use the .env DISCOVERY_ENVIRONMENT_ID to tell
-the app which environment you want it to use. A collection will be created in this environment
-using the default configuration.
-
-<!-- keep this -->
 ## License
 
 This code pattern is licensed under the Apache License, Version 2. Separate third-party code objects invoked within this code pattern are licensed by their respective providers pursuant to their own separate licenses. Contributions are subject to the [Developer Certificate of Origin, Version 1.1](https://developercertificate.org/) and the [Apache License, Version 2](https://www.apache.org/licenses/LICENSE-2.0.txt).
