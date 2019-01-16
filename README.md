@@ -18,27 +18,21 @@ When the reader has completed this Code Pattern, they will understand how to:
 4. Step 4.
 5. Step 5.
 
-# Watch the Video
-
-TBD
-
 ## Prerequisites
 
 * An [IBM Cloud Account](https://console.bluemix.net).
-* [IBM Cloud CLI](https://console.bluemix.net/docs/cli/index.html#overview)
 * An account on [IBM Watson Studio](https://dataplatform.ibm.com) or a way to run a [Jupyter Notebook](https://jupyter.org/) locally
+* For Kubernetes deployment, setup [IBM Cloud CLI](https://console.bluemix.net/docs/cli/index.html#overview) and any other required [Kubernetes prerequisites](https://console.bluemix.net/docs/containers/cs_tutorials.html#prerequisites)
 
 # Steps
 
-## Run locally
-
 1. [Clone the repo](#1-clone-the-repo)
 2. [Create Watson services with IBM Cloud](#2-create-watson-services-with-ibm-cloud)
-3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) OR
-   Run the notebook locally
-4. Perform either 4a or 4b
+3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) for use with a publicly addressed server OR
+   Run the notebook locally for local testing only
+4. Perform either 4a for use with Watson Stuido or 4b for local testing only:
 
-    4a. [Run the application server in a Docker container](#4a-run-the-application-server-in-a-docker-container)
+    4a. [Run the application server in a Kubernetes cluster](#4a-run-the-application-server-in-a-kubernetes-cluster)
 
     4b. [Run the application server locally](#4b-run-the-application-server-locally)
 
@@ -79,7 +73,79 @@ Create the following services:
 * Select the `Default Python 3.5` runtime, either `Free` or `XS`.
 * Click the `Create` button.
 
-### 4. TBD
+### 4a. Run the application server in a Kubernetes cluster
+
+* Create a [Kubernetes cluster on IBM Cloud](https://console.bluemix.net/containers-kubernetes/catalog/cluster)
+- This must be in the `Dallas` region, the same region as the [AI OpenScale](https://console.bluemix.net/catalog/services/ai-openscale) instance.
+- Select either the `Free` or `Standard` tier.
+
+* When the provisioning is completed use the worker node Public IP to update the `PUBLIC_IP` value in the [run_server.py](run_server.py) file.
+
+![](doc/source/images/public_ip.png)
+
+* Create registry namespace with your unique namespace_name
+
+```bash
+ibmcloud cr namespace-add <namespace_name>
+```
+
+* Config kubernetes cluster
+
+```bash
+ibmcloud ks cluster-config <cluster_name_or_ID>
+```
+
+- Copy the returned command and run. It will look like:
+
+```bash
+export KUBECONFIG=/Users/<user_name>/.bluemix/plugins/container-service/clusters/pr_firm_cluster/kube-config-prod-par02-pr_firm_cluster.yml
+```
+
+* Build and publish the docker image (`<region>` will likely be `ng`)
+
+```bash
+ibmcloud cr build -t registry.<region>.bluemix.net/<namespace>/custom-ml-engine:1 .
+```
+
+* Deploy the application and expose the port
+
+```bash
+kubectl run custom-ml-engine-deployment --image=registry.<region>.bluemix.net/<namespace>/custom-ml-engine:1
+kubectl create -f service.yaml
+```
+
+* Get the exposed NodePort and worker node public IP
+
+```bash
+kubectl describe service custom-ml-engine-service
+ibmcloud ks workers <cluster_name_or_ID>
+```
+
+The application will be available with the following URL: `http://<IP_address>:<NodePort>`
+
+### 4.b Run the application server locally
+
+> NOTE: Running locally will require Python 3.5 or 3.6 (later versions will not work with Tensorflow).
+If you run the server locally, it may not have a publicly addressible IP address, if you are behind a firewall or local router. You would therefore also have to run the [Jupyter notebook](https://jupyter.org/) locally as well.
+
+* It is recommended that you use a [Python virtualenv](https://pypi.org/project/virtualenv/)
+
+```bash
+python -m venv mytestenv       # Python 3.X
+
+# Now source the virtual environment. Use one of the two commands depending on your OS.
+source mytestenv/bin/activate  # Mac or Linux
+./mytestenv/Scripts/activate   # Windows PowerShell
+```
+
+* Run:
+
+```bash
+pip install -r requirements.txt
+python run_server.py
+```
+
+Application server will be available at http://127.0.0.1:5000
 
 ### 5. Run the notebook in IBM Watson Studio
 
@@ -103,8 +169,6 @@ $ibmcloud resource service-instance <AIOpenScale_instance_name>
   Do **not** continue to the next cell until the code is finished running.
 
 # Sample output
-
-# Troubleshooting
 
 ## License
 
