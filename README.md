@@ -30,11 +30,8 @@ When the reader has completed this Code Pattern, they will understand how to:
 3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) for use with a publicly addressed server OR
    Run the notebook locally for local testing only
 4. Perform either 4a for use with Watson Stuido or 4b for local testing only:
-
     4a. [Run the application server in a Kubernetes cluster](#4a-run-the-application-server-in-a-kubernetes-cluster)
-
     4b. [Run the application server locally](#4b-run-the-application-server-locally)
-
 5. [Run the notebook in IBM Watson Studio](#5-run-the-notebook-in-ibm-watson-studio)
 
 ### 1. Clone the repo
