@@ -170,6 +170,36 @@ $ibmcloud resource service-instance <AIOpenScale_instance_name>
 
 # Sample output
 
+### GET the application server deployments
+
+Navigate a browser to `http://<ip_address>:<port>/v1/deployments`
+
+Output:
+
+```
+{"count":3,"resources":[{"entity":{"asset":{"guid":"resnet50","name":"resnet50"},"asset_properties":{"input_data_type":"unstructured_image","problem_type":"multiclass"},"description":"Keras ResNet50 model deployment for image classification","name":"ResNet50 AIOS compliant deployment","scoring_url":"http://169.60.16.73:31520/v1/deployments/resnet50/online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"resnet50","modified_at":"2016-12-02T12:00:22Z"}},{"entity":{"asset":{"guid":"resnet50","name":"resnet50"},"asset_properties":{"input_data_type":"unstructured_image","problem_type":"multiclass"},"description":"Keras ResNet50 model deployment for image classification","name":"ResNet50 AIOS non compliant deployment","scoring_url":"http://169.60.16.73:31520/v1/deployments/resnet50_non_compliant/online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"resnet50_non_compliant","modified_at":"2016-12-02T12:00:22Z"}},{"entity":{"asset":{"guid":"action","name":"area and action prediction"},"asset_properties":{"input_data_type":"structured","problem_type":"multiclass"},"description":"area and action spark models deployment","name":"action deployment","scoring_url":"http://169.60.16.73:31520/v1/deployments/action/online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"action","modified_at":"2016-12-02T12:00:22Z"}}]}
+```
+
+### Run the [test_api.py](test/test_api.py) script following the  [test/README.md](test/README.md) instructions
+
+Output:
+
+```bash
+ $ python test_api.py
+{   'Results:': [   {   'prediction': 'beagle', 'probability': '0.98777544'},
+                    {   'prediction': 'pot', 'probability': '0.0020967727'},
+                    {   'prediction': 'Cardigan', 'probability': '0.0013517012'},
+                    {   'prediction': 'Walker_hound',
+                        'probability': '0.0012711119'},
+                    {   'prediction': 'Brittany_spaniel',
+                        'probability': '0.0010085113'}]}
+
+```
+
+### Run the [notebook](notebooks/AIOpenScaleAndCustomMLEngine.ipynb)
+
+See [example output](examples/exampleNotebook.ipynb)
+
 ## License
 
 This code pattern is licensed under the Apache License, Version 2. Separate third-party code objects invoked within this code pattern are licensed by their respective providers pursuant to their own separate licenses. Contributions are subject to the [Developer Certificate of Origin, Version 1.1](https://developercertificate.org/) and the [Apache License, Version 2](https://www.apache.org/licenses/LICENSE-2.0.txt).
