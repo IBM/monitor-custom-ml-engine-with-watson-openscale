@@ -18,7 +18,7 @@ python test_api.py
 
 The script will return a score for the deployed image recognition model:
 
-```
+```bash
  $ python test_api.py
 {   'Results:': [   {   'prediction': 'beagle', 'probability': '0.98777544'},
                     {   'prediction': 'pot', 'probability': '0.0020967727'},

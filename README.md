@@ -12,11 +12,10 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 ## Flow
 
-1. Step 1.
-2. Step 2.
-3. Step 3.
-4. Step 4.
-5. Step 5.
+1. User deploys application server on the IBM Cloud using Kubernetes and Docker.
+2. User creates a Jupyter notebook on Watson Studio and configures AI OpenScale and Compose PostgreSQL.
+3. AI OpenScale is used to monitor a Machine Learning model for payload logging and quality.
+4. The application server is used for scoring the deployed model.
 
 ## Prerequisites
 
@@ -43,7 +42,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 Clone the `monitor-custom-ml-engine-with-ai-openscale` locally. In a terminal, run:
 
 ```bash
-$ git clone https://github.com/IBM/monitor-custom-ml-engine-with-ai-openscale
+git clone https://github.com/IBM/monitor-custom-ml-engine-with-ai-openscale
 ```
 
 ### 2. Create Watson services with IBM Cloud
@@ -153,13 +152,13 @@ Application server will be available at http://127.0.0.1:5000
 
 Get an IAM apikey:
 ```
-$ibmcloud login --sso
-$ibmcloud iam api-key-create 'my_key'
+ibmcloud login --sso
+ibmcloud iam api-key-create 'my_key'
 ```
 
 Get AI OpenScale instance GUID:
 ```
-$ibmcloud resource service-instance <AIOpenScale_instance_name>
+ibmcloud resource service-instance <AIOpenScale_instance_name>
 ```
 
 * Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `AIOS_CREDENTIALS`.
@@ -184,7 +183,7 @@ Output:
 
 Output:
 
-```bash
+```json
  $ python test_api.py
 {   'Results:': [   {   'prediction': 'beagle', 'probability': '0.98777544'},
                     {   'prediction': 'pot', 'probability': '0.0020967727'},
