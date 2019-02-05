@@ -1,20 +1,20 @@
-# Monitor Custom Machine Learning engine with AI OpenScale
+# Monitor Custom Machine Learning engine with Watson OpenScale
 
-In this Code Pattern, we will log the payload for a model deployed on custom model serving engine using AI OpenScale python sdk. We'll use [Keras to build a deep learning REST API](https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html) and then monitor with [AI Open Scale](https://console.bluemix.net/docs/services/ai-openscale/getting-started.html).
+In this Code Pattern, we will log the payload for a model deployed on custom model serving engine using Watson OpenScale python sdk. We'll use [Keras to build a deep learning REST API](https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html) and then monitor with [Watson Open Scale](https://console.bluemix.net/docs/services/ai-openscale/getting-started.html).
 
 When the reader has completed this Code Pattern, they will understand how to:
 
 * Build a custom model serving engine using [Keras](https://keras.io/)
 * Access the custom model using a REST API
-* Log the payload for the model using [AI OpenScale](https://console.bluemix.net/docs/services/ai-openscale/connect-ml.html#connect-ml)
+* Log the payload for the model using [Watson OpenScale](https://console.bluemix.net/docs/services/ai-openscale/connect-ml.html#connect-ml)
 
 ![](doc/source/images/architecture.png)
 
 ## Flow
 
 1. User deploys application server on the IBM Cloud using Kubernetes and Docker.
-2. User creates a Jupyter notebook on Watson Studio and configures AI OpenScale and Compose PostgreSQL.
-3. AI OpenScale is used to monitor a Machine Learning model for payload logging and quality.
+2. User creates a Jupyter notebook on Watson Studio and configures Watson OpenScale and Compose PostgreSQL.
+3. Watson OpenScale is used to monitor a Machine Learning model for payload logging and quality.
 4. The application server is used for scoring the deployed model.
 
 ## Prerequisites
@@ -29,17 +29,17 @@ When the reader has completed this Code Pattern, they will understand how to:
 2. [Create Watson services with IBM Cloud](#2-create-watson-services-with-ibm-cloud)
 3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) for use with a publicly addressed server OR
    Run the notebook locally for local testing only
-4. Perform either 4a for use with Watson Stuido or 4b for local testing only:  
-    4a. [Run the application server in a Kubernetes cluster](#4a-run-the-application-server-in-a-kubernetes-cluster)  
-    4b. [Run the application server locally](#4b-run-the-application-server-locally)  
+4. Perform either 4a for use with Watson Studio or 4b for local testing only:
+    4a. [Run the application server in a Kubernetes cluster](#4a-run-the-application-server-in-a-kubernetes-cluster)
+    4b. [Run the application server locally](#4b-run-the-application-server-locally)
 5. [Run the notebook in IBM Watson Studio](#5-run-the-notebook-in-ibm-watson-studio)
 
 ### 1. Clone the repo
 
-Clone the `monitor-custom-ml-engine-with-ai-openscale` locally. In a terminal, run:
+Clone the `monitor-custom-ml-engine-with-watson-openscale` locally. In a terminal, run:
 
 ```bash
-git clone https://github.com/IBM/monitor-custom-ml-engine-with-ai-openscale
+git clone https://github.com/IBM/monitor-custom-ml-engine-with-watson-openscale
 ```
 
 ### 2. Create Watson services with IBM Cloud
@@ -48,8 +48,8 @@ git clone https://github.com/IBM/monitor-custom-ml-engine-with-ai-openscale
 
 Create the following services:
 
-* [AI OpenScale](https://console.bluemix.net/catalog/services/ai-openscale)
-  You will get the AI OpenScale instance GUID when you run the notebook using the [IBM Cloud CLI](https://console.bluemix.net/catalog/services/ai-openscale)
+* [Watson OpenScale](https://console.bluemix.net/catalog/services/ai-openscale)
+  You will get the Watson OpenScale instance GUID when you run the notebook using the [IBM Cloud CLI](https://console.bluemix.net/catalog/services/ai-openscale)
 
 * [Compose for PostgreSQL DB](https://console.bluemix.net/catalog/services/compose-for-postgresql)
 
@@ -65,14 +65,14 @@ Create the following services:
 * Select the `From URL` tab.
 * Enter a name for the notebook.
 * Optionally, enter a description for the notebook.
-* Under `Notebook URL` provide the following url: https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-ai-openscale/notebooks/AIOpenScaleAndCustomMLEngine.ipynb
+* Under `Notebook URL` provide the following url: https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-watson-openscale/notebooks/WatsonOpenScaleAndCustomMLEngine.ipynb
 * Select the `Default Python 3.5` runtime, either `Free` or `XS`.
 * Click the `Create` button.
 
 ### 4a. Run the application server in a Kubernetes cluster
 
 * Create a [Kubernetes cluster on IBM Cloud](https://console.bluemix.net/containers-kubernetes/catalog/cluster)
-- This must be in the `Dallas` region, the same region as the [AI OpenScale](https://console.bluemix.net/catalog/services/ai-openscale) instance.
+- This must be in the `Dallas` region, the same region as the [Watson OpenScale](https://console.bluemix.net/catalog/services/ai-openscale) instance.
 - Select either the `Free` or `Standard` tier.
 
 * When the provisioning is completed use the worker node Public IP to update the `PUBLIC_IP` value in the [run_server.py](run_server.py) file.
@@ -153,12 +153,12 @@ ibmcloud login --sso
 ibmcloud iam api-key-create 'my_key'
 ```
 
-Get AI OpenScale instance GUID:
+Get Watson OpenScale instance GUID:
 ```
-ibmcloud resource service-instance <AIOpenScale_instance_name>
+ibmcloud resource service-instance <Watson OpenScale_instance_name>
 ```
 
-* Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `AIOS_CREDENTIALS`.
+* Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `WATSON_OS_CREDENTIALS`.
 * In the cell after `ACTION: Add your PostgreSQL credentials here` enter the credentials from the [Compose for PostgreSQL DB](https://console.bluemix.net/catalog/services/compose-for-postgresql) that you created earlier.
 
 * Move your cursor to each code cell and run the code in it. Read the comments for each cell to understand what the code is doing. **Important** when the code in a cell is still running, the label to the left changes to **In [\*]**:.

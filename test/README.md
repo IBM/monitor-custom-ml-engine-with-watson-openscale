@@ -1,4 +1,4 @@
-# Testing  Monitor Custom Machine Learning engine with AI OpenScale
+# Testing  Monitor Custom Machine Learning engine with Watson OpenScale
 
 You can test the deployed ML model server using the test_api.py script:
 
