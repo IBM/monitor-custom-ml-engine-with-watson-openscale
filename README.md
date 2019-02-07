@@ -155,7 +155,7 @@ ibmcloud iam api-key-create 'my_key'
 
 Get Watson OpenScale instance GUID:
 ```
-ibmcloud resource service-instance <Watson OpenScale_instance_name>
+ibmcloud resource service-instance <Watson_OpenScale_instance_name>
 ```
 
 * Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `WATSON_OS_CREDENTIALS`.
