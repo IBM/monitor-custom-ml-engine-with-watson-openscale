@@ -1,6 +1,6 @@
 # Monitor Custom Machine Learning engine with Watson OpenScale
 
-In this Code Pattern, we will log the payload for a model deployed on custom model serving engine using Watson OpenScale python sdk. We'll use [Keras to build a deep learning REST API](https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html) and then monitor with [Watson Open Scale](https://console.bluemix.net/docs/services/ai-openscale/getting-started.html).
+In this Code Pattern, we will log the payload for a model deployed on custom model serving engine using Watson OpenScale python sdk. We'll use [Keras to build a deep learning REST API](https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html) and then monitor with [Watson OpenScale](https://console.bluemix.net/docs/services/ai-openscale/getting-started.html).
 
 When the reader has completed this Code Pattern, they will understand how to:
 
@@ -155,7 +155,7 @@ ibmcloud iam api-key-create 'my_key'
 
 Get Watson OpenScale instance GUID:
 ```
-ibmcloud resource service-instance <Watson OpenScale_instance_name>
+ibmcloud resource service-instance <Watson_OpenScale_instance_name>
 ```
 
 * Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `WATSON_OS_CREDENTIALS`.
