@@ -20,7 +20,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 ## Prerequisites
 
 * An [IBM Cloud Account](https://console.bluemix.net).
-* An account on [IBM Watson Studio](https://dataplatform.ibm.com) or a way to run a [Jupyter Notebook](https://jupyter.org/) locally
+* An account on [IBM Watson Studio](https://dataplatform.cloud.ibm.com/) or a way to run a [Jupyter Notebook](https://jupyter.org/) locally
 * For Kubernetes deployment, setup [IBM Cloud CLI](https://console.bluemix.net/docs/cli/index.html#overview) and any other required [Kubernetes prerequisites](https://console.bluemix.net/docs/containers/cs_tutorials.html#prerequisites)
 
 # Steps
@@ -28,10 +28,10 @@ When the reader has completed this Code Pattern, they will understand how to:
 1. [Clone the repo](#1-clone-the-repo)
 2. [Create Watson services with IBM Cloud](#2-create-watson-services-with-ibm-cloud)
 3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) for use with a publicly addressed server OR
-   Run the notebook locally for local testing only
+   - Run the notebook locally for local testing only
 4. Perform either 4a for use with Watson Studio or 4b for local testing only:
-    4a. [Run the application server in a Kubernetes cluster](#4a-run-the-application-server-in-a-kubernetes-cluster)
-    4b. [Run the application server locally](#4b-run-the-application-server-locally)
+   - 4a. [Run the application server in a Kubernetes cluster](#4a-run-the-application-server-in-a-kubernetes-cluster)
+   - 4b. [Run the application server locally](#4b-run-the-application-server-locally)
 5. [Run the notebook in IBM Watson Studio](#5-run-the-notebook-in-ibm-watson-studio)
 
 ### 1. Clone the repo
@@ -60,7 +60,7 @@ Create the following services:
 
 ### 3. Create a notebook in IBM Watson Studio
 
-* In [Watson Studio](https://dataplatform.ibm.com), create a `New project`.
+* In [Watson Studio](https://dataplatform.cloud.ibm.com/), create a `New project`.
 * Using the project you've created, click on `+ Add to project` and then choose the  `Notebook` tile, OR in the `Assets` tab under `Notebooks` choose `+ New notebook` to create a notebook.
 * Select the `From URL` tab.
 * Enter a name for the notebook.
@@ -91,7 +91,7 @@ ibmcloud cr namespace-add <namespace_name>
 ibmcloud ks cluster-config <cluster_name_or_ID>
 ```
 
-- Copy the returned command and run. It will look like:
+* Copy the returned command and run. It will look like:
 
 ```bash
 export KUBECONFIG=/Users/<user_name>/.bluemix/plugins/container-service/clusters/pr_firm_cluster/kube-config-prod-par02-pr_firm_cluster.yml
