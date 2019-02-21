@@ -13,7 +13,7 @@ When the reader has completed this Code Pattern, they will understand how to:
 ## Flow
 
 1. User deploys application server on the IBM Cloud using Kubernetes and Docker.
-2. User creates a Jupyter notebook on Watson Studio and configures Watson OpenScale and Compose PostgreSQL.
+2. User creates a Jupyter notebook on Watson Studio and configures Watson OpenScale and Databases for PostgreSQL.
 3. Watson OpenScale is used to monitor a Machine Learning model for payload logging and quality.
 4. The application server is used for scoring the deployed model.
 
@@ -51,9 +51,8 @@ Create the following services:
 * [Watson OpenScale](https://console.bluemix.net/catalog/services/ai-openscale)
   You will get the Watson OpenScale instance GUID when you run the notebook using the [IBM Cloud CLI](https://console.bluemix.net/catalog/services/ai-openscale)
 
-* [Compose for PostgreSQL DB](https://console.bluemix.net/catalog/services/compose-for-postgresql)
+* [Databases for PostgreSQL DB](https://console.bluemix.net/catalog/services/databases-for-postgresql)
 
-![](doc/source/images/ChooseComposePostgres.png)
 
 * Wait a couple of minutes for the database to be provisioned.
 * Click on the `Service Credentials` tab on the left and then click `New credential +` to create the service credentials. Copy them or leave the tab open to use later in the notebook.
@@ -65,7 +64,7 @@ Create the following services:
 * Select the `From URL` tab.
 * Enter a name for the notebook.
 * Optionally, enter a description for the notebook.
-* Under `Notebook URL` provide the following url: https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-watson-openscale/notebooks/WatsonOpenScaleAndCustomMLEngine.ipynb
+* Under `Notebook URL` provide the following url: https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-watson-openscale/master/notebooks/WatsonOpenScaleAndCustomMLEngine.ipynb
 * Select the `Default Python 3.5` runtime, either `Free` or `XS`.
 * Click the `Create` button.
 
@@ -159,7 +158,7 @@ ibmcloud resource service-instance <Watson_OpenScale_instance_name>
 ```
 
 * Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `WATSON_OS_CREDENTIALS`.
-* In the cell after `ACTION: Add your PostgreSQL credentials here` enter the credentials from the [Compose for PostgreSQL DB](https://console.bluemix.net/catalog/services/compose-for-postgresql) that you created earlier.
+* In the cell after `ACTION: Add your PostgreSQL credentials here` enter the credentials from the [Databases for PostgreSQL DB](https://console.bluemix.net/catalog/services/databases-for-postgresql) that you created earlier.
 
 * Move your cursor to each code cell and run the code in it. Read the comments for each cell to understand what the code is doing. **Important** when the code in a cell is still running, the label to the left changes to **In [\*]**:.
   Do **not** continue to the next cell until the code is finished running.
