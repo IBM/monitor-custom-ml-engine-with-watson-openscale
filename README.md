@@ -137,10 +137,11 @@ source mytestenv/bin/activate  # Mac or Linux
 
 ```bash
 pip install -r requirements.txt
-python run_server.py
+export FLASK_APP=app.py
+python -m flask run
 ```
 
-Application server will be available at http://127.0.0.1:5000
+See [test/README.md](test/README.md)  for instructions on testing the app.
 
 ### 5. Run the notebook in IBM Watson Studio
 
@@ -168,6 +169,8 @@ ibmcloud resource service-instance <Watson_OpenScale_instance_name>
 ### GET the application server deployments
 
 Navigate a browser to `http://<ip_address>:<port>/v1/deployments`
+or run the [test_deployments.py](test/deployments_api.py) script following the  [test/README.md](test/README.md) instructions.
+
 
 Output:
 
@@ -180,15 +183,19 @@ Output:
 Output:
 
 ```json
- $ python test_api.py
-{   'Results:': [   {   'prediction': 'beagle', 'probability': '0.98777544'},
-                    {   'prediction': 'pot', 'probability': '0.0020967727'},
-                    {   'prediction': 'Cardigan', 'probability': '0.0013517012'},
-                    {   'prediction': 'Walker_hound',
-                        'probability': '0.0012711119'},
-                    {   'prediction': 'Brittany_spaniel',
-                        'probability': '0.0010085113'}]}
-
+{
+  "fields": [
+    "area"
+  ],
+  "values": [
+    [
+      314.3231432314323
+    ],
+    [
+      1257.2925729257292
+    ]
+  ]
+}
 ```
 
 ### Run the [notebook](notebooks/AIOpenScaleAndCustomMLEngine.ipynb)
