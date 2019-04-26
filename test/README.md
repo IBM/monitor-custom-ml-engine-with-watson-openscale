@@ -1,6 +1,6 @@
 # Testing  Monitor Custom Machine Learning engine with Watson OpenScale
 
-You can test the deployed ML model server using the test_api.py script:
+You can test the deployed ML model server using the score_credit.py script:
 
 * It is recommended that you use a [Python virtualenv](https://pypi.org/project/virtualenv/)
 
@@ -12,7 +12,7 @@ source mytestenv/bin/activate  # Mac or Linux
 ./mytestenv/Scripts/activate   # Windows PowerShell
 ```
 
-* export the IP_ADDR and PORT of your running server:
+* export the IP_ADDR and PORT of your running server or use the default `127.0.0.1:5000`
 
 ```bash
 export IP_ADDR=<ip_address>
@@ -23,21 +23,23 @@ export PORT=<port>
 
 ```bash
 pip install -r requirements.txt
-./test_api.py
+./score_credit.py
 ```
 
-The script will return a score for the deployed image recognition model:
+The script will return a score for the deployed credit model:
 
 ```bash
- $ python test_api.py
-{   'Results:': [   {   'prediction': 'beagle', 'probability': '0.98777544'},
-                    {   'prediction': 'pot', 'probability': '0.0020967727'},
-                    {   'prediction': 'Cardigan', 'probability': '0.0013517012'},
-                    {   'prediction': 'Walker_hound',
-                        'probability': '0.0012711119'},
-                    {   'prediction': 'Brittany_spaniel',
-                        'probability': '0.0010085113'}]}
+ $ ./score_credit.py
 
+
+******************************************
+Prepare scoring payload ...
+Score the model ...
+Return predictions ...
+
+{u'fields': [u'prediction', u'probability'], u'labels': [u'Risk', u'No Risk'], u'values': [[u'No Risk', [0.8823126094462725, 0.1176873905537274]], [u'No Risk', [0.6755090846150376, 0.3244909153849625]], [u'No Risk', [0.8944991421537971, 0.10550085784620292]], [u'No Risk', [0.9297263621482206, 0.07027363785177945]]]}
+
+******************************************
 ```
 
 You can test the deployments:

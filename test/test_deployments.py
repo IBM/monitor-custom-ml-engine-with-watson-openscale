@@ -2,20 +2,20 @@
 
 import os
 import requests
-import sys
+
+SERVER_HTTP = 'http://0.0.0.0:5000'
 
 try:
     os.environ['IP_ADDR']
     os.environ['PORT']
+    IP_ADDR=os.environ.get('IP_ADDR')
+    PORT=os.environ.get('PORT')
+    SERVER_HTTP = "http://" + IP_ADDR + ":" + PORT
 except:
-    print("Please export IP_ADDR and PORT of modify this file with the vars")
-    sys.exit(1)
+    print("Did not find exported IP_ADDR and PORT. Using 'http://0.0.0.0:5000'.")
 
-IP_ADDR=os.environ.get('IP_ADDR')
-PORT=os.environ.get('PORT')
+DEPLOYMENTS_URL = SERVER_HTTP + "/v1/deployments"
 
-
-DEPLOYMENTS_URL = "http://" + IP_ADDR + ":" + PORT + "/v1/deployments"
 header = {'Content-Type':'application/json'}
 r = requests.get(DEPLOYMENTS_URL, headers=header)
 
