@@ -29,10 +29,9 @@ When the reader has completed this Code Pattern, they will understand how to:
 2. [Create Watson services with IBM Cloud](#2-create-watson-services-with-ibm-cloud)
 3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) for use with a publicly addressed server OR
    - Run the notebook locally for local testing only
-4. Perform either 4a to Deploy to IBM Cloud **or** 4b for use with Watson Studio **or** 4c for local testing only:
+4. Perform either 4a to Deploy to IBM Cloud **or** 4b for local testing only:
    - 4a. [Deploy to IBM Cloud](#4a-deploy-to-ibm-cloud)
-   - 4b. [Run the application server in a Kubernetes cluster](#4b-run-the-application-server-in-a-kubernetes-cluster)
-   - 4c. [Run the application server locally](#4c-run-the-application-server-locally)
+   - 4b. [Run the application server locally](#4b-run-the-application-server-locally)
 5. [Run the notebook in IBM Watson Studio](#5-run-the-notebook-in-ibm-watson-studio)
 
 ### 1. Clone the repo
@@ -77,59 +76,7 @@ Click the ``Deploy to IBM Cloud`` button and hit ``Create`` and then jump to ste
 
 **OR**
 
-### 4b. Run the application server in a Kubernetes cluster
-
-* Create a [Kubernetes cluster on IBM Cloud](https://cloud.ibm.com/containers-kubernetes/catalog/cluster)
-- This must be in the `Dallas` region, the same region as the [Watson OpenScale](https://cloud.ibm.com/catalog/services/ai-openscale) instance.
-- Select either the `Free` or `Standard` tier.
-
-* When the provisioning is completed use the worker node Public IP to update the `PUBLIC_IP` value in the [run_server.py](run_server.py) file.
-
-![](doc/source/images/public_ip.png)
-
-* Create registry namespace with your unique namespace_name
-
-```bash
-ibmcloud cr namespace-add <namespace_name>
-```
-
-* Config kubernetes cluster
-
-```bash
-ibmcloud ks cluster-config <cluster_name_or_ID>
-```
-
-* Copy the returned command and run. It will look like:
-
-```bash
-export KUBECONFIG=/Users/<user_name>/.bluemix/plugins/container-service/clusters/pr_firm_cluster/kube-config-prod-par02-pr_firm_cluster.yml
-```
-
-* Build and publish the docker image (`<region>` will likely be `ng`)
-
-```bash
-ibmcloud cr build -t registry.<region>.bluemix.net/<namespace>/custom-ml-engine:1 .
-```
-
-* Deploy the application and expose the port
-
-```bash
-kubectl run custom-ml-engine-deployment --image=registry.<region>.bluemix.net/<namespace>/custom-ml-engine:1
-kubectl create -f service.yaml
-```
-
-* Get the exposed NodePort and worker node public IP
-
-```bash
-kubectl describe service custom-ml-engine-service
-ibmcloud ks workers <cluster_name_or_ID>
-```
-
-The application will be available with the following URL: `http://<IP_address>:<NodePort>`
-
-**OR**
-
-### 4.c Run the application server locally
+### 4.b Run the application server locally
 
 > NOTE: Running locally will require Python 3.5 or 3.6 (later versions will not work with Tensorflow).
 If you run the server locally, it may not have a publicly addressible IP address, if you are behind a firewall or local router. You would therefore also have to run the [Jupyter notebook](https://jupyter.org/) locally as well.
