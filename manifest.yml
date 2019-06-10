@@ -8,3 +8,4 @@ applications:
   memory: 256MB
   name: custom-ml-server
   timeout: 180
+  random-route: false
