@@ -6,6 +6,6 @@ applications:
     FLASK_DEBUG: false
   instances: 1
   memory: 256MB
-  name: custom-ml-server
   timeout: 180
   random-route: false
+  name: custom-ml-server-wos
