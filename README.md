@@ -13,10 +13,10 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 ## Flow
 
-1. User deploys application server on the IBM Cloud using Kubernetes and Docker.
-2. User creates a Jupyter notebook on Watson Studio and configures Watson OpenScale and Databases for PostgreSQL.
-3. Watson OpenScale is used to monitor a Machine Learning model for payload logging and quality.
-4. The application server is used for scoring the deployed model.
+1. User creates a Jupyter notebook on Watson Studio and configures Watson OpenScale.
+2. Custom Machine Learning server is running with a public URL
+3. Watson OpenScale is configured using a Jupyter notebook
+4. OpenScale is used to monitor a Machine Learning model for payload logging and quality.
 
 ## Prerequisites
 
