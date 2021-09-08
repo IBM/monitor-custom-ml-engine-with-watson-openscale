@@ -1,12 +1,13 @@
 # Monitor Custom Machine Learning engine with Watson OpenScale
 
-In this Code Pattern, we will log the payload for a model deployed on custom model serving engine using Watson OpenScale python sdk. We'll use [Keras to build a deep learning REST API](https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html) and then monitor with [Watson OpenScale](https://www.ibm.com/cloud/watson-openscale/)
+In this Code Patten, we'll demonstrate how to monitor a machine learning model using [Watson OpenScale](https://www.ibm.com/cloud/watson-openscale/). You can using any model deployment serving engine, but we will create one using a Python Flask wrapper with Watson Machine Learning to simulate this.
 
 When the reader has completed this Code Pattern, they will understand how to:
 
-* Build a custom model serving engine using [Keras](https://keras.io/)
-* Access the custom model using a REST API
+* Create a data mart for a machine learning model with [Watson OpenScale](https://www.ibm.com/cloud/watson-openscale/).
 * Log the payload for the model using [Watson OpenScale](https://cloud.ibm.com/docs/services/ai-openscale/connect-ml.html#connect-ml)
+* Configure OpenScale to monitor that deployment for Fairness, Quality, and Drift.
+
 
 ![](doc/source/images/architecture.png)
 
@@ -19,22 +20,21 @@ When the reader has completed this Code Pattern, they will understand how to:
 
 ## Prerequisites
 
-* An [IBM Cloud Account](https://cloud.ibm.com).
-* An account on [IBM Watson Studio](https://dataplatform.cloud.ibm.com/) or a way to run a [Jupyter Notebook](https://jupyter.org/) locally
-* For Kubernetes deployment, setup [IBM Cloud CLI](https://cloud.ibm.com/docs/cli/index.html#overview) and any other required [Kubernetes prerequisites](https://cloud.ibm.com/docs/containers/cs_tutorials.html#prerequisites)
+* A Machine Learning provider, i.e running in a VM on [IBM Cloud ](https://cloud.ibm.com) using the provided Flask app.
+* An instance of [Cloud Pak for Data](https://www.ibm.com/products/cloud-pak-for-data).
+* Watson OpenScale provisioned on Cloud Pak for Data.
+* [IBM Cloud Object Storage (COS)](https://www.ibm.com/cloud/object-storage)
 
 # Steps
 
 1. [Clone the repo](#1-clone-the-repo)
-2. [Create Watson services with IBM Cloud](#2-create-watson-services-with-ibm-cloud)
-3. [Create a notebook in IBM Watson Studio](#3-create-a-notebook-in-ibm-watson-studio) for use with a publicly addressed server OR
-   - Run the notebook locally for local testing only
-4. Perform either 4a to Deploy to IBM Cloud **or** 4b for local testing only:
-   - 4a. [Deploy to IBM Cloud](#4a-deploy-to-ibm-cloud)
-   - 4b. [Run the application server locally](#4b-run-the-application-server-locally)
-5. [Run the notebook in IBM Watson Studio](#5-run-the-notebook-in-ibm-watson-studio)
+1. [Create custom machine learning provider](#2-create-custom-machine-learning-provider)
+1. [Create a Watson OpenScale service](#3-create-a-watson-openscale-service)
+1. [Create COS bucket and get credentials](#4-create-cos-bucket-and-get-credentials)
+1. [Create a notebook on Cloud Pak for Data](#5-create-a-notebook-on-cloud-pak-for-data)
+1. [Run the notebook](#6-run-the-notebook)
 
-### 1. Clone the repo
+## 1. Clone the repo
 
 Clone the `monitor-custom-ml-engine-with-watson-openscale` locally. In a terminal, run:
 
@@ -42,118 +42,167 @@ Clone the `monitor-custom-ml-engine-with-watson-openscale` locally. In a termina
 git clone https://github.com/IBM/monitor-custom-ml-engine-with-watson-openscale
 ```
 
-### 2. Create Watson services with IBM Cloud
+## 2. Create custom machine learning provider
 
-> Note: If you are using [Watson Studio]() for your notebook, services created must be in the same region, and space, as your Watson Studio service.
+Use your existing machine learning providor
 
-Create the following services:
+<details><summary>Setup on a VM</summary>
 
-* [Watson OpenScale](https://cloud.ibm.com/catalog/services/ai-openscale)
-  You will get the Watson OpenScale instance GUID when you run the notebook using the [IBM Cloud CLI](https://cloud.ibm.com/catalog/services/ai-openscale)
+### Custom Machine Learning Provider Setup for VM
 
-* [Databases for PostgreSQL DB](https://cloud.ibm.com/catalog/services/databases-for-postgresql)
+The code in flask.py can be used to start a gunicorn/flask application that can be hosted in a VM, such that it can be accessable from CPD system.
+This code does the following:
+* It wraps a Watson Machine Learning model that is deployed to a space.
+* The hosting application URL should contain the SPACE ID and the DEPLOYMENT ID. The app can be used to talk to the target WML model/deployment.
+* Having said that, this is only for this tutorial purpose, and you can define your Custom ML provider endpoint in any fashion you want, such that it wraps your own custom ML engine.
+* The scoring request and response payload should confirm to the schema as described here at: https://dataplatform.cloud.ibm.com/docs/content/wsj/model/wos-frameworks-custom.html
+* To start the application using the below code, make sure you install the python packages using:
 
+```python
 
-* Wait a couple of minutes for the database to be provisioned.
-* Click on the `Service Credentials` tab on the left and then click `New credential +` to create the service credentials. Copy them or leave the tab open to use later in the notebook.
+pip install -r requirement.txt
+```
 
-### 3. Create a notebook in IBM Watson Studio
+</details>
 
-* In [Watson Studio](https://dataplatform.cloud.ibm.com/), create a `New project`.
+or 
+
+<details><summary>Run on RedHat OpenShift</summary>
+
+## Prerequisites
+
+You will need a running OpenShift cluster, or OKD cluster. You can provision [OpenShift on the IBM Cloud](https://cloud.ibm.com/kubernetes/catalog/openshiftcluster).
+
+## Steps
+
+1. [Create an OpenShift project](#1-create-an-openshift-project)
+1. [Create the config map](#2-create-the-config-map)
+1. [Get a secure endpoint](#3-get-a-secure-endpoint)
+1. [Run the web app](#4-run-the-web-app)
+
+### 1. Create an OpenShift project
+
+* Using the OpenShift web console, select the `Application Console` view.
+
+  ![console-options](https://raw.githubusercontent.com/IBM/pattern-utils/master/openshift/openshift-app-console-option.png)
+
+* Use the `+Create Project` button to create a new project, then click on your project to open it.
+
+* In the `Overview` tab, click on `Browse Catalog`.
+
+  ![Browse Catalog](https://raw.githubusercontent.com/IBM/pattern-utils/master/openshift/openshift-browse-catalog.png)
+
+* Choose the `Python` app container and click `Next`.
+
+  ![Choose Python](doc/source/images/openshift-choose-python.png)
+
+* Give your app a name and add `https://github.com/IBM//monitor-custom-ml-engine-with-watson-openscale` for the github repo, then click `Create`.
+
+  ![Add github repo](https://raw.githubusercontent.com/IBM/pattern-utils/master/openshift/openshift-add-github-repo.png)
+
+### 2. Create the config map
+
+* Click on the `Resources` tab and choose `Config Maps` and then click the `Create Config Map` button.
+  * Provide a `Name` for the config map.
+  * Click `Add Item` and add a key named `URL` and under `Enter a value...`, enter auth url of Cloud Pak for Data instance under which the prediction model is deployed.
+  * Click `Add Item` and add a key named `USERNAME` and under `Enter a value...`, enter username to Cloud Pak for Data instance under which the prediction model is deployed.
+  * Click `Add Item` and add a key named `PASSWORD` and under `Enter a value...`, enter the password to Cloud Pak for Data instance under which the prediction model is deployed.
+  * Hit the `Create` button.
+  * Click on your new Config Map's name.
+  * Click the `Add to Application` button.
+  * Select your application from the pulldown.
+  * Click `Save`.
+
+  ![config_map.png](doc/source/images/config_map.png)
+
+* Go to the `Applications` tab, choose `Deployments` to view the status of your application.
+
+## 3. Get a secure endpoint
+
+* From the OpenShift or OKD UI, under `Applications` ▷ `Routes` you will see your app.
+  * Click on the application `Name`.
+  * Under `TLS Settings`, click on `Edit`.
+  * Under `Security`, check the box for `Secure route`.
+  * Hit `Save`.
+
+## 4. Run the web app
+
+* Go back to `Applications` ▷ `Routes`. You will see your app.
+
+* Save the URL for the Route. You will use this in the [configuration notebook](#5-create-a-notebook-on-cloud-pak-for-data) in the section `1.2 Configure credentials` for the variable *CUSTOM_ML_PROVIDER_SCORING_URL*.
+
+[![return](https://raw.githubusercontent.com/IBM/pattern-utils/master/deploy-buttons/return.png)](../../README.md#create-a-watson-openscale-service)
+
+</details>
+
+### 3. Create a Watson OpenScale service
+
+<details><summary>Setup OpenScale on Cloud Pak for Data if needed</summary>
+
+> Note: This assumes that your Cloud Pak for Data Cluster Admin has already installed and provisioned OpenScale on the cluster.
+
+* In the Cloud Pak for Data instance, go the (☰) menu and under `Services` section, click on the `Instances` menu option.
+
+  ![Service](doc/source/images/services.png)
+
+* Find the `OpenScale-default` instance from the instances table and click the three vertical dots to open the action menu, then click on the `Open` option.
+
+  ![Openscale Tile](doc/source/images/services-wos-instance.png)
+
+* If you need to give other users access to the OpenScale instance, go the (☰) menu and under `Services` section, click on the `Instances` menu option.
+
+* Find the `OpenScale-default` instance from the instances table and click the three vertical dots to open the action menu, then click on the `Manage access` option.
+
+  ![Openscale Tile](doc/source/images/services-wos-manageaccess.png)
+
+* To add users to the service instance, click the `Add users` button.
+
+  ![Openscale Tile](doc/source/images/services-wos-addusers.png)
+
+* For all of the user accounts, select the `Editor` role for each user and then click the `Add` button.
+
+  ![Openscale Tile](doc/source/images/services-wos-userrole.png)
+
+</details>
+
+### 4. Create COS bucket and get credentials
+
+* In your [IBM Cloud Object Storage](https://www.ibm.com/cloud/object-storage)  instance, create a bucket with a globally unique name. The UI will let you know if there is a naming conflict. This will be used in cell *1.3.1* as *BUCKET_NAME*.
+
+* In your [IBM Cloud Object Storage](https://www.ibm.com/cloud/object-storage) instance, get the Service Credentials for use as `COS_API_KEY_ID`, `COS_RESOURCE_CRN`, and `COS_ENDPOINT`:
+
+  ![COS credentials](doc/source/images/cos-credentials.png)
+
+## 5. Create a notebook on Cloud Pak for Data
+
+* In your on-premise Cloud Pak for Data, click `New Project +` under Projects or, at the top of the page click `+ New` and choose the tile for `Data Science` and then `Create Project`.
+
 * Using the project you've created, click on `+ Add to project` and then choose the  `Notebook` tile, OR in the `Assets` tab under `Notebooks` choose `+ New notebook` to create a notebook.
-* Select the `From URL` tab.
-* Enter a name for the notebook.
-* Optionally, enter a description for the notebook.
-* Under `Notebook URL` provide the following url: https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-watson-openscale/master/notebooks/WatsonOpenScaleAndCustomMLEngine.ipynb
-* Select the `Default Python 3.5` runtime, either `Free` or `XS`.
-* Click the `Create` button.
 
-### 4a. Deploy to IBM Cloud
+* Select the `From URL` tab. [1]
 
-[![Deploy to IBM Cloud](https://cloud.ibm.com/devops/setup/deploy/button.png)](https://cloud.ibm.com/devops/setup/deploy?repository=https://github.com/IBM/monitor-custom-ml-engine-with-watson-openscale)
+* Enter a name for the notebook. [2]
 
-Click the ``Deploy to IBM Cloud`` button and hit ``Create`` and then jump to step 5.
+* Optionally, enter a description for the notebook. [3]
 
-**OR**
+* For `Runtime` select the `Default Spark Python 3.7 ` option. [4]
 
-### 4.b Run the application server locally
+* Under `Notebook URL` provide the following url: [https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-watson-openscale/master/notebooks/WatsonOpenScaleAndCustomMLEngine.ipynb](https://raw.githubusercontent.com/IBM/monitor-custom-ml-engine-with-watson-openscale/master/notebooks/WatsonOpenScaleAndCustomMLEngine.ipynb)
 
-> NOTE: Running locally will require Python 3.5 or 3.6 (later versions will not work with Tensorflow).
-If you run the server locally, it may not have a publicly addressible IP address, if you are behind a firewall or local router. You would therefore also have to run the [Jupyter notebook](https://jupyter.org/) locally as well.
+* Click the `Create notebook` button. [6]
 
-* It is recommended that you use a [Python virtualenv](https://pypi.org/project/virtualenv/)
+![OpenScale Notebook Create](doc/source/images/OpenScaleNotebookCreate.png)
 
-```bash
-python -m venv mytestenv       # Python 3.X
-
-# Now source the virtual environment. Use one of the two commands depending on your OS.
-source mytestenv/bin/activate  # Mac or Linux
-./mytestenv/Scripts/activate   # Windows PowerShell
-```
-
-* Run:
-
-```bash
-pip install -r requirements.txt
-export FLASK_APP=app.py
-python -m flask run
-```
-
-See [test/README.md](test/README.md)  for instructions on testing the app.
-
-### 5. Run the notebook in IBM Watson Studio
-
-* Follow the instructions for `ACTION: Get data_mart_id (GUID) and apikey` using the [IBM Cloud CLI](https://cloud.ibm.com/docs/cli/index.html#overview)
-
-Get an IAM apikey:
-```
-ibmcloud login --sso
-ibmcloud iam api-key-create 'my_key'
-```
-
-Get Watson OpenScale instance GUID:
-```
-ibmcloud resource service-instance <Watson_OpenScale_instance_name>
-```
-
-* Enter the `GUID` as the `instance_guid` and the iam `API Key` as the `apikey` in the next cell for the `WATSON_OS_CREDENTIALS`.
-* In the cell after `ACTION: Add your PostgreSQL credentials here` enter the credentials from the [Databases for PostgreSQL DB](https://cloud.ibm.com/catalog/services/databases-for-postgresql) that you created earlier.
+## 6. Run the notebook
 
 * Move your cursor to each code cell and run the code in it. Read the comments for each cell to understand what the code is doing. **Important** when the code in a cell is still running, the label to the left changes to **In [\*]**:.
   Do **not** continue to the next cell until the code is finished running.
 
-# Sample output
+* Add the COS credentials in cell *1.3.1 Cloud object storage details*.
 
-### GET the application server deployments
+* Insert your BUCKET_NAME in the cell *1.3.1 Bucket name*.
 
-Navigate a browser to `http://<ip_address>:<port>/v1/deployments`
-or run the [test_deployments.py](test/deployments_api.py) script following the  [test/README.md](test/README.md) instructions.
-
-
-Output:
-
-```
-{"count":3,"resources":[{"entity":{"asset":{"guid":"resnet50","name":"resnet50"},"asset_properties":{"input_data_type":"unstructured_image","problem_type":"multiclass"},"description":"Keras ResNet50 model deployment for image classification","name":"ResNet50 AIOS compliant deployment","scoring_url":"http://169.60.16.73:31520/v1/deployments/resnet50/online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"resnet50","modified_at":"2016-12-02T12:00:22Z"}},{"entity":{"asset":{"guid":"resnet50","name":"resnet50"},"asset_properties":{"input_data_type":"unstructured_image","problem_type":"multiclass"},"description":"Keras ResNet50 model deployment for image classification","name":"ResNet50 AIOS non compliant deployment","scoring_url":"http://169.60.16.73:31520/v1/deployments/resnet50_non_compliant/online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"resnet50_non_compliant","modified_at":"2016-12-02T12:00:22Z"}},{"entity":{"asset":{"guid":"action","name":"area and action prediction"},"asset_properties":{"input_data_type":"structured","problem_type":"multiclass"},"description":"area and action spark models deployment","name":"action deployment","scoring_url":"http://169.60.16.73:31520/v1/deployments/action/online"},"metadata":{"created_at":"2016-12-01T10:11:12Z","guid":"action","modified_at":"2016-12-02T12:00:22Z"}}]}
-```
-
-### Run the [score_credit.py](test/score_credit.py) script following the  [test/README.md](test/README.md) instructions
-
-Output:
-
-```bash
-******************************************
-Prepare scoring payload ...
-Score the model ...
-Return predictions ...
-
-{'fields': ['prediction', 'probability'], 'labels': ['Risk', 'No Risk'], 'values': [['No Risk', [0.8823126094462725, 0.1176873905537274]], ['No Risk', [0.6755090846150376, 0.3244909153849625]], ['No Risk', [0.8944991421537971, 0.10550085784620292]], ['No Risk', [0.9297263621482206, 0.07027363785177945]]]}
-
-******************************************
-```
-
-### Run the [notebook](notebooks/AIOpenScaleAndCustomMLEngine.ipynb)
-
-See [example output](examples/exampleNotebook.ipynb)
+* Either use the internal Database, which requires *No Changes* or Add your `DB_CREDENTIALS` after reading the instructions preceeding that cell and change the cell `KEEP_MY_INTERNAL_POSTGRES = True` to become `KEEP_MY_INTERNAL_POSTGRES = False`.
 
 ## License
 

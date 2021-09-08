@@ -1,11 +1,8 @@
-flask==1.0.2
-gunicorn==19.7.1
-ibmcloudenv
-livereload
+gunicorn
+flask
 numpy
 pandas
-prometheus-client
 requests
-scikit-learn
-scipy
-sklearn
+joblib==0.11
+scipy==0.19.1
+ibm_watson_machine_learning
