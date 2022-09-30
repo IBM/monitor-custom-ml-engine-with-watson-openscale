@@ -3,6 +3,6 @@ flask
 numpy
 pandas
 requests
-joblib==0.11
+joblib==1.2.0
 scipy==0.19.1
 ibm_watson_machine_learning
