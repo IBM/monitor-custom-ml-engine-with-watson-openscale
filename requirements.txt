@@ -1,8 +1,4 @@
-gunicorn
 flask
-numpy
-pandas
-requests
-joblib==0.11
-scipy==0.19.1
 ibm_watson_machine_learning
+ibm_cloud_sdk_core
+ibm_watson_openscale
